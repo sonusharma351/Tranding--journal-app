@@ -1,0 +1,65 @@
+import { useState, useEffect } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button";
+
+export default function TradingJournalApp() { const [entries, setEntries] = useState([]); const [form, setForm] = useState({ date: "", symbol: "", tradeType: "", side: "", qty: "", entryPrice: "", exitPrice: "", stopLoss: "", target: "", exitType: "", reason: "", lesson: "", });
+
+useEffect(() => { const saved = localStorage.getItem("journalEntries"); if (saved) setEntries(JSON.parse(saved)); }, []);
+
+useEffect(() => { localStorage.setItem("journalEntries", JSON.stringify(entries)); }, [entries]);
+
+const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); };
+
+const handleSubmit = () => { const pnl = form.entryPrice && form.exitPrice ? (parseFloat(form.exitPrice) - parseFloat(form.entryPrice)) * parseInt(form.qty) : 0; setEntries([...entries, { ...form, pnl }]); setForm({ date: "", symbol: "", tradeType: "", side: "", qty: "", entryPrice: "", exitPrice: "", stopLoss: "", target: "", exitType: "", reason: "", lesson: "", }); };
+
+return ( <div className="p-4 max-w-5xl mx-auto"> <h1 className="text-2xl font-bold mb-4">📒 Trading Journal</h1> <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {Object.keys(form).map((key) => ( <input key={key} name={key} value={form[key]} onChange={handleChange} placeholder={key.replace(/([A-Z])/g, " $1")} className="border p-2 rounded" /> ))} </div> <Button className="mt-4" onClick={handleSubmit}> ➕ Add Trade </Button>
+
+<h2 className="text-xl font-semibold mt-8 mb-2">📊 Journal Entries</h2>
+  <div className="overflow-auto">
+    <table className="min-w-full border text-sm">
+      <thead>
+        <tr>
+          {[
+            "Date",
+            "Symbol",
+            "Type",
+            "Side",
+            "Qty",
+            "Entry",
+            "Exit",
+            "SL",
+            "Target",
+            "Exit Type",
+            "P&L",
+            "Reason",
+            "Lesson",
+          ].map((h) => (
+            <th key={h} className="border p-2 bg-gray-100">
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((entry, idx) => (
+          <tr key={idx}>
+            <td className="border p-1">{entry.date}</td>
+            <td className="border p-1">{entry.symbol}</td>
+            <td className="border p-1">{entry.tradeType}</td>
+            <td className="border p-1">{entry.side}</td>
+            <td className="border p-1">{entry.qty}</td>
+            <td className="border p-1">{entry.entryPrice}</td>
+            <td className="border p-1">{entry.exitPrice}</td>
+            <td className="border p-1">{entry.stopLoss}</td>
+            <td className="border p-1">{entry.target}</td>
+            <td className="border p-1">{entry.exitType}</td>
+            <td className="border p-1">{entry.pnl}</td>
+            <td className="border p-1">{entry.reason}</td>
+            <td className="border p-1">{entry.lesson}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+); }
+
